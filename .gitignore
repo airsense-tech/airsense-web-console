@@ -1,0 +1,8 @@
+# Ignore node modules.
+/node_modules
+
+# Ignore Angular cache.
+/.angular
+
+# Ignore compiled output.
+/dist

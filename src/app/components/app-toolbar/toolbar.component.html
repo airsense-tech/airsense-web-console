@@ -1,0 +1,10 @@
+<mat-toolbar>
+  <button mat-icon-button (click)="toggleSidebar()" [hidden]="!isAuthenticated">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>AirSense Web Console</span>
+  <span class="flex flex-1 flex-shrink-1 flex-basis-auto"></span>
+  <button mat-icon-button (click)="logout()" [hidden]="!isAuthenticated">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
