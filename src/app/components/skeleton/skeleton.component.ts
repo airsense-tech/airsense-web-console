@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,13 +7,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule, RouterOutlet } from '@angular/router';
+import { DeviceCardComponent } from '../app-device-card/device-card.component';
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'app-skeleton',
   standalone: true,
   imports: [
     CommonModule,
@@ -27,19 +26,14 @@ import { RouterModule, RouterOutlet } from '@angular/router';
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
-    MatSidenavModule,
-    MatListModule,
+    DeviceCardComponent,
   ],
-  templateUrl: './sidebar.component.html',
+  templateUrl: './skeleton.component.html',
 })
-export class SidebarComponent {
+export class SkeletonComponent {
   @Input()
-  public class: string | undefined;
+  public width: string = '128px';
 
-  @ViewChild('drawer', { static: true })
-  public drawer: MatDrawer | undefined;
-
-  public toggle() {
-    this.drawer?.toggle();
-  }
+  @Input()
+  public height: string = '128px';
 }

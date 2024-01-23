@@ -12,6 +12,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
 import { ImageService } from '../../services/assets/image.service';
 import { LogService } from '../../services/logging/log.service';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 /**
  * Represents a card for a single device.
@@ -31,15 +32,22 @@ import { LogService } from '../../services/logging/log.service';
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
+    SkeletonComponent,
   ],
   templateUrl: './device-card.component.html',
 })
 export class DeviceCardComponent implements OnInit {
   /**
+   * The device id.
+   */
+  @Input()
+  public deviceId: string = '';
+
+  /**
    * The device name.
    */
   @Input()
-  public device: string = '';
+  public deviceName: string = '';
 
   /**
    * The internal image blob displayed in the card.
@@ -63,7 +71,7 @@ export class DeviceCardComponent implements OnInit {
    * Angular's lifecycle hook for component initialization.
    */
   public async ngOnInit(): Promise<void> {
-    this.selectImage(this.device);
+    this.selectImage(this.deviceName);
   }
 
   private async selectImage(device: string): Promise<void> {

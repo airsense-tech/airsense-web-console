@@ -1,8 +1,13 @@
-<div class="h-full z-50 hover:scale-105 shadow-lg hover:shadow-xl transition ease-in-out">
-  <div class="relative">
-    <img class="w-full h-auto" [src]="imgBlob" alt="" />
-    <div class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-      <p class="text-white text-5xl font-bold rotate-45">{{device}}</p>
+<div class="h-full overflow-hidden">
+  <div class="h-full z-0 hover:z-10 hover:scale-105 shadow-lg hover:shadow-xl transition ease-in-out">
+    <div class="relative">
+      <div>
+        <img class="w-full h-auto" [src]="imgBlob" [hidden]="!imgBlob"/>
+        <app-skeleton width="450.5px" height="450.5px" [hidden]="imgBlob"></app-skeleton>
+      </div>
+      <div class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
+        <p class="text-primary text-5xl font-bold rotate-45">{{deviceName}}</p>
+      </div>
     </div>
   </div>
 </div>

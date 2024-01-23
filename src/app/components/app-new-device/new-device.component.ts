@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,17 +7,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'app-new-device',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     RouterOutlet,
     MatButtonModule,
     MatToolbarModule,
@@ -27,19 +24,12 @@ import { RouterModule, RouterOutlet } from '@angular/router';
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
-    MatSidenavModule,
-    MatListModule,
   ],
-  templateUrl: './sidebar.component.html',
+  templateUrl: './new-device.component.html',
+  styleUrls: ['./new-device.component.scss'],
 })
-export class SidebarComponent {
-  @Input()
-  public class: string | undefined;
+export class NewDeviceComponent {
+  protected deviceName: string | undefined;
 
-  @ViewChild('drawer', { static: true })
-  public drawer: MatDrawer | undefined;
-
-  public toggle() {
-    this.drawer?.toggle();
-  }
+  protected createDevice() {}
 }

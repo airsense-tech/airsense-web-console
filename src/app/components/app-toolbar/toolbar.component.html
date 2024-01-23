@@ -1,10 +1,17 @@
-<mat-toolbar>
-  <button mat-icon-button (click)="toggleSidebar()" [hidden]="!isAuthenticated">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span>AirSense Web Console</span>
-  <span class="flex flex-1 flex-shrink-1 flex-basis-auto"></span>
-  <button mat-icon-button (click)="logout()" [hidden]="!isAuthenticated">
-    <mat-icon>logout</mat-icon>
-  </button>
+<mat-toolbar color="primary" class="!min-h-8 !h-8">
+  <div class="w-full h-full flex flex-row justify-between items-center">
+    <div>
+      <button mat-icon-button (click)="toggleSidebar()" [hidden]="!isAuthenticated">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+    <div class="self-center">
+      <span>Airsense</span>
+    </div>
+    <div>
+      <button mat-icon-button (click)="logout()" [hidden]="!isAuthenticated">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </div>
 </mat-toolbar>

@@ -1,3 +1,23 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$airsense-primary: mat.define-palette(mat.$cyan-palette, 50);
+$airsense-accent: mat.define-palette(mat.$deep-purple-palette, A100);
+
+$airsense-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $airsense-primary,
+      accent: $airsense-accent,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($airsense-theme);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

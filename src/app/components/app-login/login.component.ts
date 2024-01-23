@@ -7,8 +7,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { LoginService } from '../../services/backend/login.service';
 import { LogService } from '../../services/logging/log.service';
 
@@ -20,6 +21,7 @@ import { LogService } from '../../services/logging/log.service';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     RouterOutlet,
     MatButtonModule,
     MatToolbarModule,
@@ -45,16 +47,22 @@ export class LoginComponent {
   protected password: string | undefined;
 
   /**
-   * Whether the user has accepted the terms and conditions (two-way binding).
+   * Constructor.
+   *
+   * @param log The log service.
+   * @param loginService The login service.
+   * @param router The router.
    */
-  protected termsAccepted: boolean = false;
-
   constructor(
     private log: LogService,
     private loginService: LoginService,
     private router: Router,
+    private snackBar: MatSnackBar,
   ) {}
 
+  /**
+   * Attempts the user login.
+   */
   public async login(): Promise<void> {
     if (!this.email || !this.password) {
       return;
@@ -65,6 +73,9 @@ export class LoginComponent {
       await this.router.navigate(['/devices']);
     } catch (error) {
       this.log.error(error);
+      this.snackBar.open('Incorrect email or password!', 'Ok', {
+        duration: 5000,
+      });
     }
   }
 }
