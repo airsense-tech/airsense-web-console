@@ -35,6 +35,48 @@ export class DeviceService {
     private store: StoreService,
   ) {}
 
+  public async createDevice(name: string): Promise<DeviceInfo> {
+    return new Promise((resolve, reject) => {
+      const token = this.store.get('token');
+
+      if (!token) {
+        reject('authentication token not found');
+      }
+
+      const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+
+      return this.http.post(`${environment.api}/api/v1/devices`, { name: name }, { headers: headers }).subscribe({
+        next: (device) => {
+          resolve(device as DeviceInfo);
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
+  public async getDevice(id: string): Promise<DeviceInfo> {
+    return new Promise((resolve, reject) => {
+      const token = this.store.get('token');
+
+      if (!token) {
+        reject('authentication token not found');
+      }
+
+      const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+
+      return this.http.get(`${environment.api}/api/v1/devices/${id}`, { headers: headers }).subscribe({
+        next: (devices) => {
+          resolve(devices as DeviceInfo);
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
   public async getDevices(): Promise<DeviceInfo[]> {
     return new Promise((resolve, reject) => {
       const token = this.store.get('token');
@@ -48,6 +90,37 @@ export class DeviceService {
       return this.http.get(`${environment.api}/api/v1/devices`, { headers: headers }).subscribe({
         next: (devices) => {
           resolve(devices as DeviceInfo[]);
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
+  public async getDeviceData(
+    id: string,
+  ): Promise<{ hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[]> {
+    return new Promise((resolve, reject) => {
+      const token = this.store.get('token');
+
+      if (!token) {
+        reject('authentication token not found');
+      }
+
+      const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+
+      return this.http.get(`${environment.api}/api/v1/devices/${id}/data`, { headers: headers }).subscribe({
+        next: (devices) => {
+          resolve(
+            devices as {
+              hour: number;
+              humidity: number;
+              pressure: number;
+              temperature: number;
+              gasResistance: number;
+            }[],
+          );
         },
         error: (error) => {
           reject(error);

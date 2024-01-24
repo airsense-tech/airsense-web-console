@@ -43,7 +43,6 @@ export class DeviceManagementComponent implements OnInit {
 
   public async ngOnInit(): Promise<void> {
     await this.loadDevices();
-    this.log.warn(this.devices);
   }
 
   private async loadDevices(): Promise<void> {

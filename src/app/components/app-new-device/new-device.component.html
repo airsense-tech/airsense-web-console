@@ -1,17 +1,16 @@
 <div class="w-full h-full flex flex-col justify-center items-center">
-  <div class="airsense-background-image w-full h-full absolute blur-lg -z-50 overflow-hidden"></div>
-  <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+  <div class="airsense-background-image w-full h-full absolute -z-50 overflow-hidden"></div>
+  <div class="w-full grid grid-cols-1 md:grid-cols-3 p-4">
     <div></div>
     <div>
-      <h1 class="flex flex-row justify-center items-center text-primary text-xl">New Device</h1>
-
-      <form class="login-form flex flex-col gap-4">
-        <mat-form-field color="accent">
+      <form class="login-form flex flex-col gap-6">
+        <h1 class="flex flex-row justify-center items-center text-black text-xl">Create New Device</h1>
+        <mat-form-field color="accent" subscriptSizing="dynamic">
           <mat-label>Device</mat-label>
           <input matInput type="text" placeholder="Living Room" name="device-name" [(ngModel)]="deviceName"/>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" class="self-center w-1/2" [disabled]="!deviceName">Create</button>
+        <button mat-raised-button color="primary" class="self-center w-1/2" (click)="createDevice()" [disabled]="!deviceName">Create</button>
       </form>
     </div>
     <div></div>

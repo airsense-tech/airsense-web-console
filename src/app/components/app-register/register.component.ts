@@ -64,6 +64,7 @@ export class RegisterComponent {
       this.log.error(error);
       this.snackBar.open("Sorry, that didn't work! Try again later :(", 'Ok', {
         duration: 5000,
+        panelClass: ['bg-white'],
       });
     }
   }

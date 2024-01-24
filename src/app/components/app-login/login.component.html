@@ -3,7 +3,7 @@
   <div class="w-full grid grid-cols-1 md:grid-cols-3 p-4">
     <div></div>
     <div>
-      <form class="login-form flex flex-col gap-6">
+      <form class="flex flex-col gap-6">
         <h1 class="flex flex-row justify-center items-center text-black text-xl">Login</h1>
 
         <mat-form-field color="accent" subscriptSizing="dynamic">
@@ -41,7 +41,7 @@
         </button>
 
         <div class="text-md self-center">
-          <p class="text-black">No account yet?!<a class="text-accent" routerLink="/register"> Register now!</a></p>
+          <p class="text-black">No account yet?!<a class="text-accent" [routerLink]="['/register']"> Register now!</a></p>
         </div>
       </form>
     </div>

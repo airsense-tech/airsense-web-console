@@ -7,8 +7,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
+import { DeviceService } from '../../services/backend/device.service';
+import { LogService } from '../../services/logging/log.service';
 
 @Component({
   selector: 'app-new-device',
@@ -31,5 +34,24 @@ import { RouterOutlet } from '@angular/router';
 export class NewDeviceComponent {
   protected deviceName: string | undefined;
 
-  protected createDevice() {}
+  constructor(
+    private log: LogService,
+    private deviceService: DeviceService,
+    private router: Router,
+    private snackBar: MatSnackBar,
+  ) {}
+
+  protected async createDevice(): Promise<void> {
+    if (!this.deviceName) {
+      return;
+    }
+
+    try {
+      await this.deviceService.createDevice(this.deviceName);
+      await this.router.navigate(['/devices']);
+    } catch (error) {
+      this.log.error(`failed to create device: ${error}`);
+      this.snackBar.open('Something went wrong! Try again later :(', 'Dismiss', { duration: 5000 });
+    }
+  }
 }

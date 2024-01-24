@@ -71,6 +71,9 @@ export class DataOverviewComponent implements AfterContentInit {
           },
         ],
       },
+      options: {
+        responsive: false,
+      },
     });
   }
 }

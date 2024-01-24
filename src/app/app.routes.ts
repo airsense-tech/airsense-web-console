@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { DataOverviewComponent } from './components/app-data-overview/data-overview.component';
+import { DeviceDetailsComponent } from './components/app-device-details/device-details.component';
 import { DeviceManagementComponent } from './components/app-device-management/device-management.component';
 import { LoginComponent } from './components/app-login/login.component';
 import { NewDeviceComponent } from './components/app-new-device/new-device.component';
@@ -17,25 +18,36 @@ export const routes: Routes = [
     path: 'login',
     canActivate: [NoAuthGuard],
     component: LoginComponent,
+    data: { animation: 'login' },
   },
   {
     path: 'register',
     canActivate: [NoAuthGuard],
     component: RegisterComponent,
+    data: { animation: 'register' },
   },
   {
     path: 'devices',
     canActivate: [AuthGuard],
     component: DeviceManagementComponent,
-  },
-  {
-    path: 'overview',
-    canActivate: [AuthGuard],
-    component: DataOverviewComponent,
+    data: { animation: 'devices' },
   },
   {
     path: 'devices/create',
     canActivate: [AuthGuard],
     component: NewDeviceComponent,
+    data: { animation: 'devices/create' },
+  },
+  {
+    path: 'devices/:id',
+    canActivate: [AuthGuard],
+    component: DeviceDetailsComponent,
+    data: { animation: 'devices/:id' },
+  },
+  {
+    path: 'overview',
+    canActivate: [AuthGuard],
+    component: DataOverviewComponent,
+    data: { animation: 'register' },
   },
 ];

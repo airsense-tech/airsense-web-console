@@ -1,0 +1,50 @@
+<div class="airsense-background-image w-full h-full fixed -z-50 overflow-hidden"></div>
+<div class="w-full h-full">
+  <mat-accordion multi>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Device</mat-panel-title>
+        <mat-panel-description>Info</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <form class="w-full">
+        <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+          <mat-label>Name</mat-label>
+          <input matInput type="text" placeholder="Name" name="name" [ngModel]="deviceInfo?.name" disabled />
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Measures</mat-panel-title>
+        <mat-panel-description>Overview</mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasHumidity></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasPressure></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasTemperature></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasGasResistance></canvas>
+        </div>
+      </div>
+    </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Settings</mat-panel-title>
+        <mat-panel-description></mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
+        <button mat-raised-button color="primary">Authorize</button>
+        <button mat-raised-button color="primary">Delete</button>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
