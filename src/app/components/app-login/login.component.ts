@@ -12,6 +12,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { LoginService } from '../../services/backend/login.service';
 import { LogService } from '../../services/logging/log.service';
+import { BackgroundComponent } from '../app-background/background.component';
 
 /**
  * The login component.
@@ -31,6 +32,7 @@ import { LogService } from '../../services/logging/log.service';
     MatInputModule,
     MatFormFieldModule,
     MatCheckboxModule,
+    BackgroundComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -45,6 +47,11 @@ export class LoginComponent {
    * The password entered by the user (two-way binding).
    */
   protected password: string | undefined;
+
+  /**
+   * Indicates whether the login is in progress.
+   */
+  protected isLoginInProgress: boolean = false;
 
   /**
    * Constructor.
@@ -68,6 +75,8 @@ export class LoginComponent {
       return;
     }
 
+    this.isLoginInProgress = true;
+
     try {
       await this.loginService.login(this.email, this.password);
       await this.router.navigate(['/devices']);
@@ -76,6 +85,8 @@ export class LoginComponent {
       this.snackBar.open('Incorrect email or password!', 'Ok', {
         duration: 5000,
       });
+    } finally {
+      this.isLoginInProgress = false;
     }
   }
 }

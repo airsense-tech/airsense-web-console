@@ -3,7 +3,7 @@
     class="h-full z-0 hover:z-10 hover:scale-105 shadow-lg hover:shadow-xl transition ease-in-out"
     [routerLink]="['/devices/' + deviceId]"
   >
-    <div class="relative flex flex-row justify-center overflow-hidden">
+    <div class="relative flex flex-row justify-center">
       <div>
         <img class="w-full h-auto" [src]="imgBlob" loading="lazy" *ngIf="imgBlob" />
         <app-skeleton width="390px" height="390px" *ngIf="!imgBlob"></app-skeleton>

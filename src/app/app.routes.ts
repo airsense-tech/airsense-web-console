@@ -4,6 +4,7 @@ import { DeviceDetailsComponent } from './components/app-device-details/device-d
 import { DeviceManagementComponent } from './components/app-device-management/device-management.component';
 import { LoginComponent } from './components/app-login/login.component';
 import { NewDeviceComponent } from './components/app-new-device/new-device.component';
+import { NotFoundComponent } from './components/app-not-found/not-found.component';
 import { RegisterComponent } from './components/app-register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { NoAuthGuard } from './guards/no-auth.guard';
@@ -49,5 +50,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     component: DataOverviewComponent,
     data: { animation: 'register' },
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
   },
 ];

@@ -1,15 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterContentInit, Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ActivatedRoute, RouterModule, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { DeviceInfo, DeviceService } from '../../services/backend/device.service';
 import { LogService } from '../../services/logging/log.service';
@@ -30,6 +37,10 @@ import { LogService } from '../../services/logging/log.service';
     MatFormFieldModule,
     MatCheckboxModule,
     MatExpansionModule,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogTitle,
+    MatDialogContent,
   ],
   templateUrl: './device-details.component.html',
   styleUrls: ['./device-details.component.scss'],
@@ -47,9 +58,17 @@ export class DeviceDetailsComponent implements AfterContentInit {
   @ViewChild('canvasGasResistance', { static: true })
   public canvasGasResistance: ElementRef<HTMLCanvasElement> | undefined;
 
+  @ViewChild('dialogAuthorize', { static: true })
+  public dialogAuthorize: TemplateRef<unknown> | undefined;
+
+  @ViewChild('dialogDelete', { static: true })
+  public dialogDelete: TemplateRef<unknown> | undefined;
+
   protected deviceId: string | null;
 
   protected deviceInfo: DeviceInfo | null = null;
+
+  protected deviceCode: string | undefined = undefined;
 
   private deviceData:
     | {
@@ -62,9 +81,11 @@ export class DeviceDetailsComponent implements AfterContentInit {
     | null = null;
 
   constructor(
-    private route: ActivatedRoute,
     private log: LogService,
-    private device: DeviceService,
+    private deviceService: DeviceService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.deviceId = this.route.snapshot.paramMap.get('id');
   }
@@ -79,43 +100,57 @@ export class DeviceDetailsComponent implements AfterContentInit {
     this.createGasResistanceChart();
   }
 
+  public async authorizeDevice(): Promise<void> {
+    if (!this.deviceId || !this.dialogAuthorize) {
+      return;
+    }
+
+    try {
+      const result = await this.deviceService.createDeviceCode(this.deviceId);
+      this.deviceCode = result.code;
+
+      this.dialog.open(this.dialogAuthorize, {
+        width: '450px',
+      });
+    } catch (error) {
+      this.log.error(error);
+    }
+  }
+
+  public attemptDeleteDevice(): void {
+    if (!this.dialogDelete) {
+      return;
+    }
+
+    this.dialog.open(this.dialogDelete, {
+      width: '450px',
+    });
+  }
+
+  public async deleteDevice(): Promise<void> {
+    if (!this.deviceId) {
+      return;
+    }
+
+    try {
+      await this.deviceService.deleteDevice(this.deviceId);
+      await this.router.navigate(['/devices']);
+    } catch (error) {
+      this.log.error(error);
+    }
+  }
+
   private createHumidityChart(): void {
     if (!this.canvasHumidity || !this.deviceData) {
       return;
     }
 
-    new Chart(this.canvasHumidity.nativeElement, {
-      type: 'line',
-      data: {
-        labels: this.deviceData.map((point) => point.hour),
-        datasets: [
-          {
-            label: 'Humidity',
-            data: this.deviceData.map((point) => point.humidity),
-            borderColor: '#B388FF',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              display: false,
-            },
-          },
-          y: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    });
+    this.createChart(
+      'Humidity',
+      this.canvasHumidity.nativeElement,
+      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.humidity),
+    );
   }
 
   private createPressureChart(): void {
@@ -123,38 +158,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    new Chart(this.canvasPressure.nativeElement, {
-      type: 'line',
-      data: {
-        labels: this.deviceData.map((point) => point.hour),
-        datasets: [
-          {
-            label: 'Pressure',
-            data: this.deviceData.map((point) => point.pressure),
-            borderColor: '#B388FF',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              display: false,
-            },
-          },
-          y: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    });
+    this.createChart(
+      'Pressure',
+      this.canvasPressure.nativeElement,
+      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.pressure),
+    );
   }
 
   private createTemperatureChart(): void {
@@ -162,38 +171,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    new Chart(this.canvasTemperature.nativeElement, {
-      type: 'line',
-      data: {
-        labels: this.deviceData.map((point) => point.hour),
-        datasets: [
-          {
-            label: 'Temperature',
-            data: this.deviceData.map((point) => point.temperature),
-            borderColor: '#B388FF',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              display: false,
-            },
-          },
-          y: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    });
+    this.createChart(
+      'Temperature',
+      this.canvasTemperature.nativeElement,
+      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.temperature),
+    );
   }
 
   private createGasResistanceChart(): void {
@@ -201,38 +184,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    new Chart(this.canvasGasResistance.nativeElement, {
-      type: 'line',
-      data: {
-        labels: this.deviceData.map((point) => point.hour),
-        datasets: [
-          {
-            label: 'Gas Resistance',
-            data: this.deviceData.map((point) => point.gasResistance),
-            borderColor: '#B388FF',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              display: false,
-            },
-          },
-          y: {
-            grid: {
-              display: false,
-            },
-          },
-        },
-      },
-    });
+    this.createChart(
+      'Gas Resistance',
+      this.canvasGasResistance.nativeElement,
+      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.gasResistance),
+    );
   }
 
   private async getDeviceInfo(): Promise<void> {
@@ -241,7 +198,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     }
 
     try {
-      this.deviceInfo = await this.device.getDevice(this.deviceId);
+      this.deviceInfo = await this.deviceService.getDevice(this.deviceId);
     } catch (error) {
       this.log.error(error);
     }
@@ -253,9 +210,51 @@ export class DeviceDetailsComponent implements AfterContentInit {
     }
 
     try {
-      this.deviceData = await this.device.getDeviceData(this.deviceId);
+      this.deviceData = await this.deviceService.getDeviceData(this.deviceId);
     } catch (error) {
       this.log.error(error);
     }
+  }
+
+  private createChart(title: string, canvas: HTMLCanvasElement, labels: unknown[], data: unknown[]) {
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: title,
+            data: data,
+            borderColor: '#E0F7FA',
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+            ticks: {
+              display: false,
+            },
+          },
+          y: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            align: 'end',
+          },
+        },
+      },
+    });
   }
 }

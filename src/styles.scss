@@ -25,6 +25,7 @@ $airsense-theme: mat.define-light-theme(
 html,
 body {
   height: 100%;
+  overflow: auto;
 }
 
 body {

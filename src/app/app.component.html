@@ -2,7 +2,8 @@
   <app-toolbar [sidebar]="sidebar"></app-toolbar>
   <div class="w-full h-[calc(100%-2rem)]">
     <app-sidebar class="w-full h-full" #sidebar>
-      <div class="content w-full h-full" [@routeAnimations]="getRouteAnimationData()">
+      <div class="content w-full h-full overflow-x-hidden" [@routeAnimations]="getRouteAnimationData()">
+        <app-background></app-background>
         <router-outlet></router-outlet>
       </div>
     </app-sidebar>

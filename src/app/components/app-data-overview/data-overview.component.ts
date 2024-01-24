@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterOutlet } from '@angular/router';
 import { Chart } from 'chart.js/auto';
-import { HumidityService } from '../../services/backend/humidity.service';
+import { DataService } from '../../services/backend/data.service';
 import { LogService } from '../../services/logging/log.service';
 
 @Component({
@@ -34,45 +34,138 @@ export class DataOverviewComponent implements AfterContentInit {
   @Input()
   public device: string = '';
 
-  @ViewChild('dataCanvas', { static: true })
-  public dataCanvas: ElementRef<HTMLCanvasElement> | undefined;
+  @ViewChild('canvasHumidity', { static: true })
+  public canvasHumidity: ElementRef<HTMLCanvasElement> | undefined;
+
+  @ViewChild('canvasPressure', { static: true })
+  public canvasPressure: ElementRef<HTMLCanvasElement> | undefined;
+
+  @ViewChild('canvasTemperature', { static: true })
+  public canvasTemperature: ElementRef<HTMLCanvasElement> | undefined;
+
+  @ViewChild('canvasGasResistance', { static: true })
+  public canvasGasResistance: ElementRef<HTMLCanvasElement> | undefined;
 
   constructor(
     private log: LogService,
-    private humidityService: HumidityService,
+    private humidityService: DataService,
   ) {}
 
   public async ngAfterContentInit(): Promise<void> {
-    if (!this.dataCanvas) {
+    if (!this.canvasHumidity) {
       return;
     }
 
     try {
-      const humidityData = await this.humidityService.pull();
-      this.renderHumidityChart(humidityData);
+      const data = await this.humidityService.get();
+
+      this.renderHumidityChart(data);
+      this.renderPressureChart(data);
+      this.renderTemperatureChart(data);
+      this.renderGasResistanceChart(data);
     } catch (error) {
       this.log.error(error);
     }
   }
 
-  private renderHumidityChart(data: { hour: number; humidity: number }[]): void {
-    if (!this.dataCanvas) {
+  private renderHumidityChart(
+    data: { hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[],
+  ): void {
+    if (!this.canvasHumidity) {
       return;
     }
 
-    new Chart(this.dataCanvas.nativeElement, {
+    this.createChart(
+      'Humidity (Avg)',
+      this.canvasHumidity.nativeElement,
+      data.map((d) => d.hour),
+      data.map((d) => d.humidity),
+    );
+  }
+
+  private renderPressureChart(
+    data: { hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[],
+  ): void {
+    if (!this.canvasPressure) {
+      return;
+    }
+
+    this.createChart(
+      'Pressure (Avg)',
+      this.canvasPressure.nativeElement,
+      data.map((d) => d.hour),
+      data.map((d) => d.pressure),
+    );
+  }
+
+  private renderTemperatureChart(
+    data: { hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[],
+  ): void {
+    if (!this.canvasTemperature) {
+      return;
+    }
+
+    this.createChart(
+      'Temperature (Avg)',
+      this.canvasTemperature.nativeElement,
+      data.map((d) => d.hour),
+      data.map((d) => d.temperature),
+    );
+  }
+
+  private renderGasResistanceChart(
+    data: { hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[],
+  ): void {
+    if (!this.canvasGasResistance) {
+      return;
+    }
+
+    this.createChart(
+      'Gas Resistance (Avg)',
+      this.canvasGasResistance.nativeElement,
+      data.map((d) => d.hour),
+      data.map((d) => d.gasResistance),
+    );
+  }
+
+  private createChart(title: string, canvas: HTMLCanvasElement, labels: unknown[], data: unknown[]) {
+    new Chart(canvas, {
       type: 'line',
       data: {
-        labels: data.map((point) => point.hour),
+        labels: labels,
         datasets: [
           {
-            label: 'Humidity',
-            data: data.map((point) => point.humidity),
+            label: title,
+            data: data,
+            borderColor: '#E0F7FA',
+            fill: true,
           },
         ],
       },
       options: {
-        responsive: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+            ticks: {
+              display: false,
+            },
+          },
+          y: {
+            grid: {
+              display: false,
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            align: 'end',
+          },
+        },
       },
     });
   }

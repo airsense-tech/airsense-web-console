@@ -34,6 +34,8 @@ import { LogService } from '../../services/logging/log.service';
 export class NewDeviceComponent {
   protected deviceName: string | undefined;
 
+  protected isCreateInProgress: boolean = false;
+
   constructor(
     private log: LogService,
     private deviceService: DeviceService,
@@ -46,12 +48,16 @@ export class NewDeviceComponent {
       return;
     }
 
+    this.isCreateInProgress = true;
+
     try {
       await this.deviceService.createDevice(this.deviceName);
       await this.router.navigate(['/devices']);
     } catch (error) {
       this.log.error(`failed to create device: ${error}`);
       this.snackBar.open('Something went wrong! Try again later :(', 'Dismiss', { duration: 5000 });
+    } finally {
+      this.isCreateInProgress = false;
     }
   }
 }

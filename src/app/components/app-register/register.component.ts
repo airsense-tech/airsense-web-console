@@ -38,6 +38,8 @@ export class RegisterComponent {
   protected email: string | undefined;
   protected password: string | undefined;
 
+  protected isRegisterInProgress: boolean = false;
+
   /**
    * Constructor.
    *
@@ -57,6 +59,8 @@ export class RegisterComponent {
       return;
     }
 
+    this.isRegisterInProgress = true;
+
     try {
       await this.registerService.register(this.firstName, this.lastName, this.email, this.password);
       await this.router.navigate(['/login']);
@@ -66,6 +70,8 @@ export class RegisterComponent {
         duration: 5000,
         panelClass: ['bg-white'],
       });
+    } finally {
+      this.isRegisterInProgress = false;
     }
   }
 }

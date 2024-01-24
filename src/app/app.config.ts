@@ -11,8 +11,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 
 const scrollConfig: InMemoryScrollingOptions = {
-  scrollPositionRestoration: 'enabled',
-  anchorScrolling: 'enabled',
+  scrollPositionRestoration: 'disabled',
+  anchorScrolling: 'disabled',
 };
 
 const inMemoryScrollingFeature: InMemoryScrollingFeature = withInMemoryScrolling(scrollConfig);

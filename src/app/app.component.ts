@@ -7,14 +7,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
+import { BackgroundComponent } from './components/app-background/background.component';
 import { SidebarComponent } from './components/app-sidebar/sidebar.component';
 import { ToolbarComponent } from './components/app-toolbar/toolbar.component';
 
 export const slideInAnimation = trigger('routeAnimations', [
   transition('* <=> *', [
     style({
-      position: 'absolute',
-      overflow: 'hidden',
+      position: 'relative',
+      width: '100%',
+      height: '100%',
     }),
     query(
       ':enter, :leave',
@@ -23,6 +25,7 @@ export const slideInAnimation = trigger('routeAnimations', [
           position: 'absolute',
           width: '100%',
           height: '100%',
+          overflow: 'hidden',
         }),
       ],
       { optional: true },
@@ -50,6 +53,7 @@ export const slideInAnimation = trigger('routeAnimations', [
     ToolbarComponent,
     MatSidenavModule,
     SidebarComponent,
+    BackgroundComponent,
   ],
   templateUrl: './app.component.html',
   animations: [slideInAnimation],

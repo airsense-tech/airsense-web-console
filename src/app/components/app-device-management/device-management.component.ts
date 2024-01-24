@@ -12,6 +12,7 @@ import { RouterModule, RouterOutlet } from '@angular/router';
 import { DeviceInfo, DeviceService } from '../../services/backend/device.service';
 import { LogService } from '../../services/logging/log.service';
 import { DeviceCardComponent } from '../app-device-card/device-card.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-device-management',
@@ -39,6 +40,7 @@ export class DeviceManagementComponent implements OnInit {
   constructor(
     private log: LogService,
     private deviceService: DeviceService,
+    private snackbar: MatSnackBar,
   ) {}
 
   public async ngOnInit(): Promise<void> {
@@ -50,6 +52,9 @@ export class DeviceManagementComponent implements OnInit {
       this.devices = await this.deviceService.getDevices();
     } catch (error) {
       this.log.error(error);
+      this.snackbar.open('Something went wrong! Try again later :(', 'Ok', {
+        duration: 5000,
+      });
     }
   }
 }
