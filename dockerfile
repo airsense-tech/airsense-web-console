@@ -10,7 +10,7 @@ COPY package-lock.json .
 
 # Install the dependencies.
 # This step is done before copying the source code to make use of Docker's caching mechanism.
-RUN npm install --omit=dev --no-audit
+RUN npm install --no-audit
 
 # Copy configuration files.
 COPY .eslintrc .
