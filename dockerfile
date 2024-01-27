@@ -1,5 +1,5 @@
 # Use the latest Node.js (LTS) image as builder image.
-FROM node:lts as builder
+FROM node:lts-alpine as builder
 
 # Set up the working directory.
 WORKDIR /app
