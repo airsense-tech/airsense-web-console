@@ -44,7 +44,7 @@
         <mat-panel-title>Manage</mat-panel-title>
       </mat-expansion-panel-header>
 
-      <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
         <button mat-raised-button color="primary" (click)="authorizeDevice()">Authorize</button>
         <button mat-raised-button color="primary" (click)="attemptDeleteDevice()">Delete</button>
       </div>
@@ -52,16 +52,11 @@
 
     <mat-expansion-panel class="!bg-transparent" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Window</mat-panel-title>
+        <mat-panel-title>Trigger</mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-        <mat-form-field class="w-full col-span-2" color="accent" subscriptSizing="dynamic">
-          <mat-label>URL</mat-label>
-          <input matInput type="text" placeholder="https://open.window.com" name="url" />
-        </mat-form-field>
-        <div></div>
-        <button mat-raised-button color="primary" [disabled]="!windowUrl">Open Window</button>
+        <button mat-raised-button color="primary" (click)="attemptCreateTrigger()">Create Trigger</button>
       </div>
     </mat-expansion-panel>
   </mat-accordion>
@@ -81,5 +76,68 @@
   <div mat-dialog-actions>
     <button mat-button mat-dialog-close>No</button>
     <button mat-button mat-dialog-close cdkFocusInitial (click)="deleteDevice()">Delete</button>
+  </div>
+</ng-template>
+
+<ng-template #dialogTrigger>
+  <h1 mat-dialog-title>Create Trigger</h1>
+  <div mat-dialog-content>
+    <form class="flex flex-col gap-4 justify-center items-center">
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="Name"
+          name="name"
+          [(ngModel)]="triggerName"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>URL</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="URL"
+          name="url"
+          [(ngModel)]="triggerPostUrl"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>Threshold</mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="0.5"
+          name="threshold"
+          [(ngModel)]="triggerThreshold"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Parameter</mat-label>
+        <select matNativeControl [(ngModel)]="triggerParameter" [ngModelOptions]="{ standalone: true }">
+          <option value="humidity">Humidity</option>
+          <option value="pressure">Pressure</option>
+          <option value="temperature">Temperature</option>
+          <option value="gasResistance">GasResistance</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Evaluator</mat-label>
+        <select matNativeControl [(ngModel)]="triggerOperator" [ngModelOptions]="{ standalone: true }">
+          <option value="lt">Less Than</option>
+          <option value="lte">Less Than Equals</option>
+          <option value="gt">Greater Than</option>
+          <option value="gte">Greater Than Equals</option>
+        </select>
+      </mat-form-field>
+    </form>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button mat-dialog-close (click)="createTrigger()" [disabled]="!triggerName || !triggerPostUrl || !triggerParameter || !triggerOperator">Create</button>
   </div>
 </ng-template>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterContentInit, Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,13 +15,14 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { DeviceInfo, DeviceService } from '../../services/backend/device.service';
+import { TriggerService } from '../../services/backend/trigger.service';
 import { LogService } from '../../services/logging/log.service';
-import { WindowService } from '../../services/window/window.service';
 
 /**
  * The device details component.
@@ -46,6 +47,10 @@ import { WindowService } from '../../services/window/window.service';
     MatDialogClose,
     MatDialogTitle,
     MatDialogContent,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './device-details.component.html',
   styleUrls: ['./device-details.component.scss'],
@@ -88,6 +93,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
   public dialogDelete: TemplateRef<unknown> | undefined;
 
   /**
+   * A reference to the dialog template for creating a trigger.
+   */
+  @ViewChild('dialogTrigger', { static: true })
+  public dialogTrigger: TemplateRef<unknown> | undefined;
+
+  /**
    * The id of the device.
    */
   protected deviceId: string | null;
@@ -101,6 +112,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
    * The current device activation code.
    */
   protected deviceCode: string | undefined = undefined;
+
+  protected triggerName: string | undefined = undefined;
+  protected triggerPostUrl: string | undefined = undefined;
+  protected triggerThreshold: number | undefined = undefined;
+  protected triggerParameter: 'humidity' | 'pressure' | 'temperature' | 'gasResistance' | undefined = undefined;
+  protected triggerOperator: 'gt' | 'gte' | 'lt' | 'lte' | undefined = undefined;
 
   /**
    * The current device data.
@@ -125,7 +142,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
    *
    * @param log The log service.
    * @param deviceService The device service.
-   * @param windowService The window service.
+   * @param triggerService The trigger service.
    * @param dialog The material dialog.
    * @param route The currently active route.
    * @param router The router.
@@ -133,7 +150,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
   constructor(
     private log: LogService,
     private deviceService: DeviceService,
-    private windowService: WindowService,
+    private triggerService: TriggerService,
     private dialog: MatDialog,
     private snackbar: MatSnackBar,
     private route: ActivatedRoute,
@@ -204,15 +221,44 @@ export class DeviceDetailsComponent implements AfterContentInit {
     }
   }
 
-  public async openWindow(): Promise<void> {
-    if (!this.windowUrl) {
+  public attemptCreateTrigger(): void {
+    if (!this.dialogTrigger) {
+      return;
+    }
+
+    this.dialog.open(this.dialogTrigger, {
+      width: '650px',
+    });
+  }
+
+  public async createTrigger(): Promise<void> {
+    if (
+      !this.deviceId ||
+      !this.triggerName ||
+      !this.triggerPostUrl ||
+      !this.triggerThreshold ||
+      !this.triggerParameter ||
+      !this.triggerOperator
+    ) {
       return;
     }
 
     try {
-      await this.windowService.open(this.windowUrl);
+      const trigger = await this.triggerService.createTrigger(
+        this.deviceId,
+        this.triggerName,
+        this.triggerPostUrl,
+        this.triggerThreshold,
+        this.triggerParameter,
+        this.triggerOperator,
+      );
+
+      this.snackbar.open(`Successfully created trigger: ${trigger.name}!`, 'Dismiss', {
+        duration: 5000,
+      });
     } catch (error) {
-      this.snackbar.open('Window could not be opened!', 'Ok', {
+      this.log.error(error);
+      this.snackbar.open(`Failed to create trigger!`, 'Ok', {
         duration: 5000,
       });
     }
