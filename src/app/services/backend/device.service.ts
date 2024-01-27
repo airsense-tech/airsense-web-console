@@ -225,6 +225,7 @@ export class DeviceService {
    */
   public async getDeviceData(
     id: string,
+    since: Date = new Date(Date.now() - 24 * 60 * 60 * 1000),
   ): Promise<{ hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[]> {
     return new Promise((resolve, reject) => {
       const token = this.store.get('token');
@@ -234,23 +235,26 @@ export class DeviceService {
       }
 
       const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+      const sinceUnix = Math.floor(since.getTime());
 
-      return this.http.get(`${environment.api}/api/v1/devices/${id}/data`, { headers: headers }).subscribe({
-        next: (devices) => {
-          resolve(
-            devices as {
-              hour: number;
-              humidity: number;
-              pressure: number;
-              temperature: number;
-              gasResistance: number;
-            }[],
-          );
-        },
-        error: (error) => {
-          reject(error);
-        },
-      });
+      return this.http
+        .get(`${environment.api}/api/v1/devices/${id}/data?since=${sinceUnix}`, { headers: headers })
+        .subscribe({
+          next: (devices) => {
+            resolve(
+              devices as {
+                hour: number;
+                humidity: number;
+                pressure: number;
+                temperature: number;
+                gasResistance: number;
+              }[],
+            );
+          },
+          error: (error) => {
+            reject(error);
+          },
+        });
     });
   }
 }
