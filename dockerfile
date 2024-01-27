@@ -38,5 +38,8 @@ FROM nginx:latest
 # Expose the port that the server is running on.
 EXPOSE 80
 
+# Copy the Nginx configuration file to Nginx's default config directory.
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Copy the built source code to the Nginx's default directory.
-COPY --from=builder /app/dist/airsense-web-console/browser /usr/share/nginx/html
+COPY --from=builder /app/dist/airsense-web-console/browser /usr/share/nginx/html/

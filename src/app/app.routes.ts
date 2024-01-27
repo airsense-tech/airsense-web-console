@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { DataOverviewComponent } from './components/app-data-overview/data-overview.component';
 import { DeviceDetailsComponent } from './components/app-device-details/device-details.component';
 import { DeviceManagementComponent } from './components/app-device-management/device-management.component';
 import { LoginComponent } from './components/app-login/login.component';
@@ -44,12 +43,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     component: DeviceDetailsComponent,
     data: { animation: 'devices/:id' },
-  },
-  {
-    path: 'overview',
-    canActivate: [AuthGuard],
-    component: DataOverviewComponent,
-    data: { animation: 'register' },
   },
   {
     path: '**',

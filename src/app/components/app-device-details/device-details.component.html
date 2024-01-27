@@ -41,12 +41,27 @@
 
     <mat-expansion-panel class="!bg-transparent" [expanded]="false">
       <mat-expansion-panel-header>
-        <mat-panel-title>Actions</mat-panel-title>
+        <mat-panel-title>Manage</mat-panel-title>
       </mat-expansion-panel-header>
 
       <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4">
         <button mat-raised-button color="primary" (click)="authorizeDevice()">Authorize</button>
         <button mat-raised-button color="primary" (click)="attemptDeleteDevice()">Delete</button>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="!bg-transparent" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Window</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <mat-form-field class="w-full col-span-2" color="accent" subscriptSizing="dynamic">
+          <mat-label>URL</mat-label>
+          <input matInput type="text" placeholder="https://open.window.com" name="url" />
+        </mat-form-field>
+        <div></div>
+        <button mat-raised-button color="primary" [disabled]="!windowUrl">Open Window</button>
       </div>
     </mat-expansion-panel>
   </mat-accordion>
