@@ -15,13 +15,13 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { DeviceInfo, DeviceService } from '../../services/backend/device.service';
-import { TriggerService } from '../../services/backend/trigger.service';
+import { TriggerInfo, TriggerService } from '../../services/backend/trigger.service';
 import { LogService } from '../../services/logging/log.service';
 
 /**
@@ -113,6 +113,11 @@ export class DeviceDetailsComponent implements AfterContentInit {
    */
   protected deviceCode: string | undefined = undefined;
 
+  /**
+   * The date since to retrieve the device data.
+   */
+  protected dateSince: number = 24 * 60 * 60 * 1000;
+
   protected triggerName: string | undefined = undefined;
   protected triggerPostUrl: string | undefined = undefined;
   protected triggerThreshold: number | undefined = undefined;
@@ -132,10 +137,12 @@ export class DeviceDetailsComponent implements AfterContentInit {
       }[]
     | null = null;
 
-  /**
-   * The currently entered window url.
-   */
-  protected windowUrl: string | undefined;
+  protected triggers: TriggerInfo[] | null = null;
+
+  private humidityChart: Chart<'line', unknown[], unknown> | null = null;
+  private pressureChart: Chart<'line', unknown[], unknown> | null = null;
+  private temperatureChart: Chart<'line', unknown[], unknown> | null = null;
+  private gasResistanceChart: Chart<'line', unknown[], unknown> | null = null;
 
   /**
    * Constructor.
@@ -165,6 +172,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
   public async ngAfterContentInit(): Promise<void> {
     await this.getDeviceInfo();
     await this.getDeviceData();
+    await this.getDeviceTriggers();
 
     this.renderHumidityChart();
     this.createPressureChart();
@@ -244,7 +252,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     }
 
     try {
-      const trigger = await this.triggerService.createTrigger(
+      await this.triggerService.createTrigger(
         this.deviceId,
         this.triggerName,
         this.triggerPostUrl,
@@ -253,7 +261,9 @@ export class DeviceDetailsComponent implements AfterContentInit {
         this.triggerOperator,
       );
 
-      this.snackbar.open(`Successfully created trigger: ${trigger.name}!`, 'Dismiss', {
+      await this.getDeviceTriggers();
+
+      this.snackbar.open('Successfully created trigger!', 'Dismiss', {
         duration: 5000,
       });
     } catch (error) {
@@ -264,6 +274,34 @@ export class DeviceDetailsComponent implements AfterContentInit {
     }
   }
 
+  protected async deleteTrigger(triggerId: string): Promise<void> {
+    try {
+      this.triggerService.deleteTrigger(triggerId);
+
+      this.snackbar.open('Successfully deleted trigger!', 'Ok', {
+        duration: 5000,
+      });
+
+      await this.getDeviceTriggers();
+    } catch (error) {
+      this.log.error(error);
+      this.snackbar.open(`Failed to delete trigger!`, 'Ok', {
+        duration: 5000,
+      });
+    }
+  }
+
+  protected async onSinceSelectionChanged(event: MatSelectChange): Promise<void> {
+    const value = event.value as number;
+    const since = new Date(Date.now() - value);
+
+    await this.getDeviceData(since);
+    this.renderHumidityChart();
+    this.createPressureChart();
+    this.createTemperatureChart();
+    this.createGasResistanceChart();
+  }
+
   /**
    * Renders the humidity chart.
    */
@@ -272,7 +310,8 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    this.createChart(
+    this.humidityChart?.destroy();
+    this.humidityChart = this.createChart(
       'Humidity',
       this.canvasHumidity.nativeElement,
       this.deviceData.map((point) => point.hour),
@@ -288,7 +327,8 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    this.createChart(
+    this.pressureChart?.destroy();
+    this.pressureChart = this.createChart(
       'Pressure',
       this.canvasPressure.nativeElement,
       this.deviceData.map((point) => point.hour),
@@ -304,7 +344,8 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    this.createChart(
+    this.temperatureChart?.destroy();
+    this.temperatureChart = this.createChart(
       'Temperature',
       this.canvasTemperature.nativeElement,
       this.deviceData.map((point) => point.hour),
@@ -320,7 +361,8 @@ export class DeviceDetailsComponent implements AfterContentInit {
       return;
     }
 
-    this.createChart(
+    this.gasResistanceChart?.destroy();
+    this.gasResistanceChart = this.createChart(
       'Gas Resistance',
       this.canvasGasResistance.nativeElement,
       this.deviceData.map((point) => point.hour),
@@ -346,16 +388,40 @@ export class DeviceDetailsComponent implements AfterContentInit {
   /**
    * Retrieves the device data.
    */
-  private async getDeviceData(): Promise<void> {
+  private async getDeviceData(since = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)): Promise<void> {
     if (!this.deviceId) {
       return;
     }
 
     try {
-      const since = new Date(Date.now() - 3 * 7 * 24 * 60 * 60 * 1000);
       this.deviceData = await this.deviceService.getDeviceData(this.deviceId, since);
     } catch (error) {
       this.log.error(error);
+    }
+  }
+
+  private async getDeviceTriggers(): Promise<void> {
+    if (!this.deviceId) {
+      return;
+    }
+
+    try {
+      this.triggers = await this.triggerService.getTriggers(this.deviceId);
+    } catch (error) {
+      this.log.error(error);
+    }
+  }
+
+  protected getEvaluatorText(evaluator: 'lt' | 'lte' | 'gt' | 'gte'): string {
+    switch (evaluator) {
+      case 'lt':
+        return 'Less Than';
+      case 'lte':
+        return 'Less Than Equals';
+      case 'gt':
+        return 'Greater Than';
+      case 'gte':
+        return 'Greater Than Equals';
     }
   }
 
@@ -367,8 +433,13 @@ export class DeviceDetailsComponent implements AfterContentInit {
    * @param labels The labels for the chart.
    * @param data The data for the chart.
    */
-  private createChart(title: string, canvas: HTMLCanvasElement, labels: unknown[], data: unknown[]) {
-    new Chart(canvas, {
+  private createChart(
+    title: string,
+    canvas: HTMLCanvasElement,
+    labels: unknown[],
+    data: unknown[],
+  ): Chart<'line', unknown[], unknown> {
+    return new Chart(canvas, {
       type: 'line',
       data: {
         labels: labels,
@@ -390,7 +461,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
               display: false,
             },
             ticks: {
-              display: false,
+              display: true,
             },
           },
           y: {
@@ -403,18 +474,6 @@ export class DeviceDetailsComponent implements AfterContentInit {
           legend: {
             position: 'bottom',
             align: 'end',
-          },
-          zoom: {
-            zoom: {
-              wheel: {
-                enabled: true,
-                modifierKey: 'ctrl',
-              },
-              pinch: {
-                enabled: true,
-              },
-              mode: 'xy',
-            },
           },
         },
       },

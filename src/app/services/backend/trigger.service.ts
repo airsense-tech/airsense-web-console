@@ -97,4 +97,46 @@ export class TriggerService {
         });
     });
   }
+
+  public async deleteTrigger(triggerId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const token = this.store.get('token');
+
+      if (!token) {
+        reject('authentication token not found');
+      }
+
+      const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+
+      return this.http.delete(`${environment.api}/api/v1/triggers/${triggerId}`, { headers: headers }).subscribe({
+        next: () => {
+          resolve();
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
+  public async getTriggers(deviceId: string): Promise<TriggerInfo[]> {
+    return new Promise((resolve, reject) => {
+      const token = this.store.get('token');
+
+      if (!token) {
+        reject('authentication token not found');
+      }
+
+      const headers = new HttpHeaders().append('Authorization', `Bearer ${token}`);
+
+      return this.http.get(`${environment.api}/api/v1/devices/${deviceId}/triggers`, { headers: headers }).subscribe({
+        next: (trigger) => {
+          resolve(trigger as TriggerInfo[]);
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+  }
 }
