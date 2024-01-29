@@ -226,7 +226,7 @@ export class DeviceService {
   public async getDeviceData(
     id: string,
     since: Date = new Date(Date.now() - 24 * 60 * 60 * 1000),
-  ): Promise<{ hour: number; humidity: number; pressure: number; temperature: number; gasResistance: number }[]> {
+  ): Promise<{ humidity: number; pressure: number; temperature: number; gasResistance: number; createdOn: Date }[]> {
     return new Promise((resolve, reject) => {
       const token = this.store.get('token');
 
@@ -243,11 +243,11 @@ export class DeviceService {
           next: (devices) => {
             resolve(
               devices as {
-                hour: number;
                 humidity: number;
                 pressure: number;
                 temperature: number;
                 gasResistance: number;
+                createdOn: Date;
               }[],
             );
           },

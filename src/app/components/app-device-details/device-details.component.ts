@@ -20,6 +20,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { Chart } from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
+import { enUS } from 'date-fns/locale';
 import { DeviceInfo, DeviceService } from '../../services/backend/device.service';
 import { TriggerInfo, TriggerService } from '../../services/backend/trigger.service';
 import { LogService } from '../../services/logging/log.service';
@@ -129,11 +131,11 @@ export class DeviceDetailsComponent implements AfterContentInit {
    */
   private deviceData:
     | {
-        hour: number;
         humidity: number;
         pressure: number;
         temperature: number;
         gasResistance: number;
+        createdOn: Date;
       }[]
     | null = null;
 
@@ -314,7 +316,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     this.humidityChart = this.createChart(
       'Humidity',
       this.canvasHumidity.nativeElement,
-      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.createdOn),
       this.deviceData.map((point) => point.humidity),
     );
   }
@@ -331,7 +333,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     this.pressureChart = this.createChart(
       'Pressure',
       this.canvasPressure.nativeElement,
-      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.createdOn),
       this.deviceData.map((point) => point.pressure),
     );
   }
@@ -348,7 +350,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     this.temperatureChart = this.createChart(
       'Temperature',
       this.canvasTemperature.nativeElement,
-      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.createdOn),
       this.deviceData.map((point) => point.temperature),
     );
   }
@@ -365,7 +367,7 @@ export class DeviceDetailsComponent implements AfterContentInit {
     this.gasResistanceChart = this.createChart(
       'Gas Resistance',
       this.canvasGasResistance.nativeElement,
-      this.deviceData.map((point) => point.hour),
+      this.deviceData.map((point) => point.createdOn),
       this.deviceData.map((point) => point.gasResistance),
     );
   }
@@ -457,11 +459,28 @@ export class DeviceDetailsComponent implements AfterContentInit {
         maintainAspectRatio: false,
         scales: {
           x: {
+            type: 'time',
+            time: {
+              tooltipFormat: 'yyyy-MM-dd HH:mm',
+              displayFormats: {
+                millisecond: 'HH:mm:ss.SSS',
+                second: 'HH:mm:ss',
+                minute: 'HH:mm',
+                hour: 'HH',
+              },
+              unit: 'minute',
+            },
+            title: {
+              display: true,
+              text: 'Time',
+            },
             grid: {
               display: false,
             },
-            ticks: {
-              display: true,
+            adapters: {
+              date: {
+                locale: enUS,
+              },
             },
           },
           y: {
