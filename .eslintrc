@@ -1,0 +1,221 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "src/test.ts",
+    "src/polyfills.ts",
+    "node_modules/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:prettier/recommended"
+      ],
+      "rules": {
+        "prettier/prettier": [
+          "warn",
+          {
+            "endOfLine": "auto"
+          }
+        ],
+        "max-len": [
+          "warn",
+          {
+            "code": 120,
+            "ignoreUrls": true
+          }
+        ],
+        "semi": [
+          "error",
+          "always"
+        ],
+        "@typescript-eslint/no-empty-interface": [
+          "off",
+          {
+            "allowSingleExtends": false
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "warn",
+          {
+            "type": "attribute",
+            "prefix": "app",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "warn",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "warn",
+          {
+            "selector": "variable",
+            "modifiers": [
+              "const",
+              "destructured",
+              "exported",
+              "unused"
+            ],
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "variable",
+            "modifiers": [
+              "global"
+            ],
+            "format": [
+              "UPPER_CASE",
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "function",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "parameter",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "classProperty",
+            "modifiers": [
+              "abstract",
+              "protected",
+              "public",
+              "readonly",
+              "requiresQuotes"
+            ],
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "classProperty",
+            "modifiers": [
+              "private"
+            ],
+            "format": [
+              "camelCase"
+            ],
+            "leadingUnderscore": "allow"
+          },
+          {
+            "selector": "classProperty",
+            "modifiers": [
+              "static"
+            ],
+            "format": [
+              "UPPER_CASE"
+            ]
+          },
+          {
+            "selector": "objectLiteralProperty",
+            "format": [
+              "camelCase",
+              "UPPER_CASE"
+            ]
+          },
+          {
+            "selector": "typeProperty",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "classMethod",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "objectLiteralMethod",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "typeMethod",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "accessor",
+            "format": [
+              "camelCase"
+            ]
+          },
+          {
+            "selector": "enumMember",
+            "format": [
+              "UPPER_CASE"
+            ]
+          },
+          {
+            "selector": "class",
+            "format": [
+              "PascalCase"
+            ]
+          },
+          {
+            "selector": "interface",
+            "format": [
+              "PascalCase"
+            ]
+          },
+          {
+            "selector": "typeAlias",
+            "format": [
+              "PascalCase"
+            ]
+          },
+          {
+            "selector": "enum",
+            "format": [
+              "PascalCase"
+            ]
+          },
+          {
+            "selector": "typeParameter",
+            "format": [
+              "PascalCase"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
+      "rules": {}
+    }
+  ]
+}

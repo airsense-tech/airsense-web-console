@@ -1,0 +1,187 @@
+<div class="w-full h-full">
+  <mat-accordion displayMode="flat" multi>
+    <mat-expansion-panel class="!bg-transparent" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Sensor Data</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <mat-form-field class="w-full" color="accent">
+        <mat-label>Display</mat-label>
+        <mat-select (selectionChange)="onSinceSelectionChanged($event)" [ngModel]="24 * 60 * 60 * 1000">
+          <mat-option [value]="60 * 60 * 1000">Last Hour</mat-option>
+          <mat-option [value]="24 * 60 * 60 * 1000">Last 24 Hours</mat-option>
+          <mat-option [value]="2 * 24 * 60 * 60 * 1000">Last 48 Hours</mat-option>
+          <mat-option [value]="7 * 24 * 60 * 60 * 1000">Last Week</mat-option>
+          <mat-option [value]="30 * 24 * 60 * 60 * 1000">Last Month</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasTemperature></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasHumidity></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasPressure></canvas>
+        </div>
+        <div>
+          <canvas class="w-full h-full" width="16" height="9" #canvasGasResistance></canvas>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="!bg-transparent" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Device Info</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form class="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+          <mat-label>ID</mat-label>
+          <input matInput type="text" placeholder="ID" name="id" [ngModel]="deviceId" readonly />
+        </mat-form-field>
+
+        <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+          <mat-label>Name</mat-label>
+          <input matInput type="text" placeholder="Name" name="name" [ngModel]="deviceInfo?.name" readonly />
+        </mat-form-field>
+      </form>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="!bg-transparent" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Manage</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <button mat-raised-button color="primary" (click)="authorizeDevice()">Authorize</button>
+        <button mat-raised-button color="primary" (click)="attemptDeleteDevice()">Delete</button>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="!bg-transparent" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Trigger</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="flex flex-col gap-4">
+        <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+          <button mat-raised-button color="primary" (click)="attemptCreateTrigger()">Create Trigger</button>
+        </div>
+
+        <div class="w-full grid grid-cols-1 gap-4 items-center">
+          @for (trigger of triggers; track $index) {
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+              <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+                <mat-label>Name</mat-label>
+                <input matInput type="text" name="name" [ngModel]="trigger.name" readonly />
+              </mat-form-field>
+              <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+                <mat-label>Parameter</mat-label>
+                <input matInput type="text" name="parameter" [ngModel]="trigger.parameter" readonly />
+              </mat-form-field>
+              <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+                <mat-label>Threshold</mat-label>
+                <input matInput type="text" name="threshold" [ngModel]="trigger.threshold" readonly />
+              </mat-form-field>
+              <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+                <mat-label>Evaluator</mat-label>
+                <input matInput type="text" name="evaluator" [ngModel]="getEvaluatorText(trigger.operator)" readonly />
+              </mat-form-field>
+              <button mat-raised-button color="primary" style="height: 56px;" (click)="deleteTrigger(trigger._id)">Delete</button>
+            </div>
+          }
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+
+<ng-template #dialogAuthorize>
+  <h1 mat-dialog-title>Authorize Device</h1>
+  <div mat-dialog-content>This is your one-time authorization code: <span class="font-bold">{{ deviceCode }}</span>.</div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Ok</button>
+  </div>
+</ng-template>
+
+<ng-template #dialogDelete>
+  <h1 mat-dialog-title>Delete Device</h1>
+  <div mat-dialog-content>Would you like to delete this device? All data associated with this device will be lost!</div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>No</button>
+    <button mat-button mat-dialog-close cdkFocusInitial (click)="deleteDevice()">Delete</button>
+  </div>
+</ng-template>
+
+<ng-template #dialogTrigger>
+  <h1 mat-dialog-title>Create Trigger</h1>
+  <div mat-dialog-content>
+    <form class="flex flex-col gap-4 justify-center items-center">
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="Name"
+          name="name"
+          [(ngModel)]="triggerName"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>URL</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="URL"
+          name="url"
+          [(ngModel)]="triggerPostUrl"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent" subscriptSizing="dynamic">
+        <mat-label>Threshold</mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="0.5"
+          name="threshold"
+          [(ngModel)]="triggerThreshold"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent">
+        <mat-label>Parameter</mat-label>
+        <mat-select [(ngModel)]="triggerParameter" [ngModelOptions]="{ standalone: true }">
+          <mat-option value="humidity">Humidity</mat-option>
+          <mat-option value="pressure">Pressure</mat-option>
+          <mat-option value="temperature">Temperature</mat-option>
+          <mat-option value="gasResistance">GasResistance</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="w-full" color="accent">
+        <mat-label>Evaluator</mat-label>
+        <mat-select [(ngModel)]="triggerOperator" [ngModelOptions]="{ standalone: true }">
+          <mat-option value="lt">Less Than</mat-option>
+          <mat-option value="lte">Less Than Equals</mat-option>
+          <mat-option value="gt">Greater Than</mat-option>
+          <mat-option value="gte">Greater Than Equals</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-button
+      mat-dialog-close
+      (click)="createTrigger()"
+      [disabled]="!triggerName || !triggerPostUrl || !triggerParameter || !triggerOperator"
+    >
+      Create
+    </button>
+  </div>
+</ng-template>
